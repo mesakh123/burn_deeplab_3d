@@ -1,0 +1,145 @@
+version: "3"
+
+services:
+  backend:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./backend/dockerfiles/dev.Dockerfile
+      args:
+        - GIT_TOKEN=$GIT_TOKEN
+    image: django_backend
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+    env_file:
+      - ./backend/env/local.env
+    expose:
+      - "9999"
+    volumes:
+      - ./backend/:/app/
+      - ../backend/:/backend:cached # Make Git work in Dev Container
+      - /react_django_3d/.git/hooks # Create separated hooks in Container
+      - pre_commit_cache:/root/.cache/pre-commit/
+      - ./backend/static:/app/static
+    networks:
+      - mynetwork
+    command: /start
+
+  db:
+    restart: always
+    image: postgres:14
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    env_file:
+      - ./backend/env/local.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - mynetwork
+    ports:
+      - "5432:5432"
+
+  backend-redis:
+    restart: always
+    image: redis:6.2.6
+    volumes:
+      - redis_data:/data
+    networks:
+      - mynetwork
+    ports:
+      - "6377:6379"
+
+  backend-celery-beat:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./backend/dockerfiles/dev.Dockerfile
+      args:
+        - GIT_TOKEN=$GIT_TOKEN
+    image: django_backend
+    env_file:
+      - ./backend/env/local.env
+    depends_on:
+      - backend-celery
+    networks:
+      - mynetwork
+    entrypoint: /app/entrypoints/celery-beat-entrypoint.sh
+
+  backend-celery:
+    restart: always
+    cpus: 0.7
+    build:
+      context: .
+      dockerfile: ./backend/dockerfiles/dev.Dockerfile
+      args:
+        - GIT_TOKEN=$GIT_TOKEN
+    image: django_backend
+    env_file:
+      - ./backend/env/local.env
+    depends_on:
+      - backend-redis
+    volumes:
+      - ./backend/media:/app/media
+    networks:
+      - mynetwork
+    entrypoint: /app/entrypoints/celery-entrypoint.sh
+
+  nginx-backend:
+    restart: always
+    build: ./backend/nginx
+    ports:
+      - 8080:80
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/static:/app/static
+      - ./backend/media:/app/media
+    networks:
+      - mynetwork
+
+
+  frontend:
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./frontend/dockerfiles/dev.Dockerfile
+      args:
+        - GIT_TOKEN=$GIT_TOKEN
+    image: frontend_app
+    stdin_open: true
+    tty: true
+    env_file:
+      - ./frontend/env/local.env
+    ports:
+      - 3000:80
+    volumes:
+      - ./frontend/:/app/
+      - ../frontend/:/frontend:cached # Make Git work in Dev Container
+      - /react_django_3d/.git/hooks # Create separated hooks in Container
+      - pre_commit_cache:/root/.cache/pre-commit/
+      - ./frontend/build:/app/build
+    networks:
+      - mynetwork
+
+  # nginx-frontend:
+  #   restart: always
+  #   build: ./frontend/nginx
+  #   ports:
+  #     - 3000:80
+  #   depends_on:
+  #     - nginx-backend
+  #     - frontend
+  #   networks:
+  #     - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
+  pre_commit_cache:
+    driver: local
