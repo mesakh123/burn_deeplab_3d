@@ -30,7 +30,6 @@ function App() {
             element={<ActivatePage />}
           /> */}
           <Route path="/upload/*" element={<UploadPage />} />
-          <Route path="/result/*" element={<ResultPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ToastContainer theme="dark" />

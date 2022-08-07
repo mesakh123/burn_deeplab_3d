@@ -114,7 +114,8 @@ function DragDropFile() {
             title: <strong>Prediction started</strong>,
             html: <i>prediction is running, please wait</i>,
             showCancelButton: false,
-            showConfirmButton: false
+            showConfirmButton: false,
+            allowOutsideClick: false,
         })
 
         axios.post(

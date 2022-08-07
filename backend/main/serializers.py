@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import transaction
 
 from django.conf import settings
-from .models import Datafile, Dataset
+from .models import Datafile, Dataset, Prediction
 from .utils.validator import validate_request_files,FILE_TYPE
 
 
@@ -20,11 +20,17 @@ class DatasetSerializer(serializers.ModelSerializer):
         model = Dataset
         fields = "__all__"
 
-class UploadResponseSerializer(DatafileSerializer):
-    file_set = DatasetSerializer()
-    files = DatafileSerializer(source="file_set",many=True)
+class PredictionSerializer(serializers.ModelSerializer):
+    file = serializers.FileField( allow_empty_file=True, allow_null=True)
+    class Meta:
+        model = Prediction
+        fields = "__all__"
 
 
+
+class UploadResponseSerializer(DatasetSerializer):
+    gt_files = DatafileSerializer(source="file_set",many=True)
+    pt_files = DatafileSerializer(source="prediction_set",many=True)
 
 
 class UploadSerializer(serializers.ModelSerializer):

@@ -24,7 +24,7 @@ function ResultPage() {
         )
     }
     else{
-        navigate("/upload");
+        return navigate("/upload");
     }
 
 }

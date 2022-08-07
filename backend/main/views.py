@@ -16,7 +16,7 @@ from .tasks import post_predict_dataset
 logger = logging.getLogger(__name__)
 
 class UploadViewSet(ActionBasedSerializerClassMixin,ModelViewSet):
-    queryset = Dataset.objects.all()
+    queryset = Dataset.objects.prefetch_related(*Dataset.PREFETCH_RELATED_FIELDS).all()
     base_serializer_class = UploadSerializer
     retrieve_serializer_class = UploadResponseSerializer
 
@@ -27,28 +27,3 @@ class UploadViewSet(ActionBasedSerializerClassMixin,ModelViewSet):
         post_predict_dataset.delay(
             dataset_id = instance.id
         )
-
-    @extend_schema(responses=UploadResponseSerializer)
-    @action(detail=True,methods=["get"],)
-    def datafiles(self, request, *args, **kwargs):
-        dataset = self.get_object()
-        data = { "dataset":model_to_dict(dataset), "files": {}}
-        ground_truths = dataset.file_set.all().values()
-        prediction = dataset.prediction_set.all().first()
-        file_dict = dict()
-        for gt in ground_truths:
-            file_dict[gt["type"]] = gt
-        if prediction:
-            prediction_dict = model_to_dict(prediction)
-            print(f"prediction_dict : {prediction_dict}")
-            prediction_dict["file"]  = "" if "file" not in  prediction_dict else prediction_dict["file"].name
-            file_dict['predictions'] = prediction_dict
-
-        data["files"] = file_dict
-        # try:
-
-        # except Exception as e:
-        #     logger.info(f"Error getting data : {e}  ")
-        #     raise Exception("Error")
-
-        return Response(data)

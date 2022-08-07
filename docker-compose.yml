@@ -26,6 +26,11 @@ services:
     networks:
       - mynetwork
     command: /start
+    healthcheck:
+      test: ["CMD", "curl","--fail","http://localhost:9999/api","||","exit","1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
 
   db:
     restart: always
@@ -40,6 +45,12 @@ services:
       - mynetwork
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready  -d $${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 
   backend-redis:
     restart: always
@@ -50,6 +61,27 @@ services:
       - mynetwork
     ports:
       - "6377:6379"
+
+  # backend-flower:
+  #   restart: always
+  #   image: mher/flower:0.9.7
+  #   command: ['flower', '--broker=redis://backend-redis:6379', '--port=5555']
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - mynetwork
+  #   expose:
+  #     - 5555
+  # nginx-flower:
+  #   build:
+  #     context : ./backend/nginx
+  #     dockerfile: Dockerfile.flower
+  #   ports:
+  #     - 5555:80
+  #   depends_on:
+  #     - backend-flower
+  #   networks:
+  #     - mynetwork
 
   backend-celery-beat:
     restart: always
@@ -62,7 +94,11 @@ services:
     env_file:
       - ./backend/env/local.env
     depends_on:
-      - backend-celery
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
     networks:
       - mynetwork
     entrypoint: /app/entrypoints/celery-beat-entrypoint.sh
@@ -88,7 +124,9 @@ services:
 
   nginx-backend:
     restart: always
-    build: ./backend/nginx
+    build:
+      context : ./backend/nginx
+      dockerfile: Dockerfile
     ports:
       - 8080:80
     depends_on:
@@ -98,7 +136,6 @@ services:
       - ./backend/media:/app/media
     networks:
       - mynetwork
-
 
   frontend:
     restart: always
