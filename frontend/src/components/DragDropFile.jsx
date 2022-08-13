@@ -31,7 +31,7 @@ function DragDropFile() {
             console.log("datasetStatus datasetStatus "+datasetStatus)
             if(datasetStatus==="completed"){
                 startSwal.close();
-                navigate("/result",{state:{datasetId: datasetId,datasetStatus:datasetStatus}});
+                navigate("/upload/result",{state:{datasetId: datasetId,datasetStatus:datasetStatus}});
             }
             else{
                 console.log("errorswall")
