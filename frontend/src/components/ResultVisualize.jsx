@@ -14,7 +14,7 @@ function ResultVisualize({datasetId}) {
     const [isLoading, setLoading] = useState(true);
     const [isError, setError] = useState(false);
     const [loopMutex, setLoopMutex] = useState(true);
-    const [curDatasetId, setCurDatasetID] = useState(1);
+    const [curDatasetId, setCurDatasetID] = useState(datasetId);
     const navigate = useNavigate();
     const base_url = "";
     const errorSwal = withReactContent(Swal);
