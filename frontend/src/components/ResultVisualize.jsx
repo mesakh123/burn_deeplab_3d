@@ -9,13 +9,14 @@ import ResultRender from './ResultRender';
 function ResultVisualize({datasetId}) {
 
     const [dataset,setDataset] = useState(null);
-    const [datafiles,setDatafiles] = useState([]);
+    const [gt_data,setGtData] = useState([]);
+    const [predict_data,setPredictData] = useState([]);
     const [isLoading, setLoading] = useState(true);
     const [isError, setError] = useState(false);
     const [loopMutex, setLoopMutex] = useState(true);
     const [curDatasetId, setCurDatasetID] = useState(1);
     const navigate = useNavigate();
-    const base_url = "http://127.0.0.1:8080";
+    const base_url = "";
     const errorSwal = withReactContent(Swal);
 
     const [render_files_type,setRenderFilesType] = useState([]);
@@ -29,11 +30,13 @@ function ResultVisualize({datasetId}) {
             console.log("datasetId: "+curDatasetId)
             navigate("/upload/result/");
         }
-        if(datafiles.length==0 || isError == false){
+        if(gt_data.length==0 || isError == false){
             axios.get(base_url+"/api/upload/"+curDatasetId+"/").
             then(function (response) {
                 console.log("ResultVisualize response : " + JSON.stringify(response));
-                setDatafiles(response.data.files);
+
+                setGtData(response.data.gt_files);
+                setPredictData(response.data.pt_files); //
                 setDataset(response.data.dataset_uuid);
                 setLoading(false);
             })
@@ -54,8 +57,8 @@ function ResultVisualize({datasetId}) {
 
 
     useEffect(() => {
-        console.log("changed datafiles: "+JSON.stringify(datafiles));
-        Object.values(datafiles).map(function(data) {
+        console.log("changed gt_data: "+JSON.stringify(gt_data));
+        Object.values(gt_data).map(function(data) {
 
             let new_data = data;
             let isExist = render_files_type.some(element=> element==new_data['type'])
@@ -73,10 +76,26 @@ function ResultVisualize({datasetId}) {
 
         })
 
-    },[datafiles]);
+    },[gt_data]);
 
 
-    if (isLoading || datafiles == null) {
+    useEffect(()=>{
+        console.log("changed predict_data: "+JSON.stringify(predict_data));
+        Object.values(predict_data).map(function(data) {
+
+            let new_data = data;
+            console.log("data: "+JSON.stringify(new_data));
+            setRenderFiles(prevData=>{
+                return {
+                    ...prevData,["texture"]:new_data["file"]
+                }
+            });
+
+        })
+    },[predict_data]);
+
+
+    if (isLoading || gt_data == null) {
         return <div className="App">Loading...</div>;
     }
     let data_array = {};

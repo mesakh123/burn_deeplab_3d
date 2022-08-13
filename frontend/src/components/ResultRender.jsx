@@ -3,8 +3,6 @@ import * as THREE from 'three'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import Stats from 'three/examples/jsm/libs/stats.module'
-
 
 function ResultRender({data_array}) {
 
@@ -57,7 +55,6 @@ function ResultRender({data_array}) {
         let model_obj = data_array["obj"];
         let model_mtl = data_array["mtl"];
         let model_texture = data_array["texture"];
-        let scale = 0.15;
 
         const loader = new THREE.TextureLoader();
         const texture = loader.setPath(path).load(model_texture);
@@ -101,7 +98,7 @@ function ResultRender({data_array}) {
 
 
         const render = (time) => {
-            time = time * 0.001; //原本 time 为毫秒，我们这里对 time 进行转化，修改成 秒，以便于我们动画旋转角度的递增
+            time = time * 0.001;
             renderer.render(scene, camera);
             window.requestAnimationFrame(render);
           };
@@ -109,9 +106,9 @@ function ResultRender({data_array}) {
 
         const handleResize = () => {
             const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+            renderer.setSize(window.innerWidth , window.innerHeight, false);
           };
           handleResize();
           window.addEventListener("resize", handleResize,false);
@@ -121,7 +118,7 @@ function ResultRender({data_array}) {
     });
 
     return (
-        <canvas ref={canvasRef} id="canvas-result"/>
+        <canvas ref={canvasRef} id="canvas-result" className='w-50 h-100'/>
     )
 }
 
