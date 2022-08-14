@@ -5,8 +5,11 @@ import Table from 'react-bootstrap/Table';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import ResultRender from './ResultRender';
+import { useLocation } from "react-router-dom";
+function ResultVisualize() {
 
-function ResultVisualize({datasetId}) {
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [dataset,setDataset] = useState(null);
     const [gt_data,setGtData] = useState([]);
@@ -14,8 +17,11 @@ function ResultVisualize({datasetId}) {
     const [isLoading, setLoading] = useState(true);
     const [isError, setError] = useState(false);
     const [loopMutex, setLoopMutex] = useState(true);
-    const [curDatasetId, setCurDatasetID] = useState(datasetId);
-    const navigate = useNavigate();
+    const [curDatasetId, setCurDatasetID] = useState(
+        location.state ?
+        (location.state.datasetId ? location.state.datasetId : null)
+        : null
+    );
     const base_url = "";
     const errorSwal = withReactContent(Swal);
 
@@ -24,35 +30,43 @@ function ResultVisualize({datasetId}) {
 
     const FILE_ALLOWED_TYPES = ["texture","obj","mtl"];
 
+
+    if(location.state == null || location.state==undefined) {
+        navigate("/upload/");
+    }
+
+
     useEffect(() => {
-        console.log("datasetId: "+curDatasetId)
-        if(curDatasetId == null){
+        if(curDatasetId == null || curDatasetId==undefined) {
             console.log("datasetId: "+curDatasetId)
-            navigate("/upload/result/");
+            navigate("/upload/");
         }
-        if(gt_data.length==0 || isError == false){
-            axios.get(base_url+"/api/upload/"+curDatasetId+"/").
-            then(function (response) {
-                console.log("ResultVisualize response : " + JSON.stringify(response));
+        else{
+            if(gt_data.length==0 || isError == false){
+                axios.get(base_url+"/api/upload/"+curDatasetId+"/").
+                then(function (response) {
+                    console.log("ResultVisualize response : " + JSON.stringify(response));
 
-                setGtData(response.data.gt_files);
-                setPredictData(response.data.pt_files); //
-                setDataset(response.data.dataset_uuid);
-                setLoading(false);
-            })
-            .catch(
-                (error) => {
-                    console.log(error);
-                    setError(true);
-                    errorSwal.fire({
-                        title: <strong>Prediction Error</strong>,
-                        html: <i>`$error`</i>,
-                        icon:'error',
-                    })
-                }
+                    setGtData(response.data.gt_files);
+                    setPredictData(response.data.pt_files); //
+                    setDataset(response.data.dataset_uuid);
+                    setLoading(false);
+                })
+                .catch(
+                    (error) => {
+                        console.log(error);
+                        setError(true);
+                        errorSwal.fire({
+                            title: <strong>Prediction Error</strong>,
+                            html: <i>`$error`</i>,
+                            icon:'error',
+                        })
+                    }
 
-            );
+                );
+            }
         }
+
     },[loopMutex]);
 
 
@@ -106,7 +120,7 @@ function ResultVisualize({datasetId}) {
             data_array[key]= new_data;
         }
     })
-
+    navigate(location.pathname, { replace: true });
 
     return (
     <div className='row no-gutters  no-gutters'>

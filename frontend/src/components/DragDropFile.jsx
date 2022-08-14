@@ -25,7 +25,7 @@ function DragDropFile() {
     const [datasetId, setDatasetId] = useState(-1);
     const [loopMutex, setLoopMutex] = useState(false);
 
-    const curr_home = "http://localhost:8080/"
+    const curr_home = "/"
     useEffect(() => {
         if(datasetId!==-1 && datasetStatus!=="processing" && datasetStatus!=null){
             console.log("datasetStatus datasetStatus "+datasetStatus)
@@ -131,8 +131,9 @@ function DragDropFile() {
             console.log("response: " + JSON.stringify(response));
             console.log("response.status: "+response.status);
             console.log("response.data.id: "+response.data.id);
-            setDatasetId(response.data.id);
-
+            if(response.data.id && datasetId==-1){
+                setDatasetId(response.data.id);
+            }
           })
           .catch(function (error) {
             startSwal.close();
