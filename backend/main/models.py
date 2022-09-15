@@ -17,6 +17,40 @@ class AbstractData(models.Model):
     class Meta:
         abstract = True
 
+class AbstractPatient(models.Model):
+    class SexChoice(models.TextChoices):
+        FEMALE = 'f', 'Female'
+        MALE = 'm', 'Male'
+        UNSURE = 'u', 'Unsure'
+
+    name = models.CharField(max_length=200)
+    age = models.IntegerField(default=0)
+    sex = models.CharField(max_length=1,choices=SexChoice.choices)
+    height = models.FloatField()
+    weight = models.FloatField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    class Meta:
+        abstract = True
+
+class Medician(AbstractPatient):
+    medician_id =  models.CharField(max_length=250)
+
+class Patient(AbstractPatient):
+
+    class BurnChoice(models.TextChoices):
+        SCALD = ('s','Scald')
+        GREASE = ('g','Grease')
+        CONTACT = ('n','Contact')
+        FLAME = ('f','Flame')
+        CHEMICAL = ('c','Chemical')
+        ELECTRIC = ('e','Electric')
+        OTHER = ('o','Other')
+
+    burn_type =  models.CharField(max_length=250,choices=BurnChoice.choices)
+
+    class Meta:
+        verbose_name_plural ="patients"
 
 class OperationStatus(models.TextChoices):
     EMPTY = "empty","Empty"
@@ -35,6 +69,8 @@ class Dataset(AbstractData):
         choices=OperationStatus.choices,
     )
 
+    medician = models.ForeignKey(Medician, null=True, on_delete=models.SET_NULL,related_name='medician_dataset_set')
+    patient = models.ForeignKey(Patient, null=True, on_delete=models.SET_NULL,related_name='patient_dataset_set')
 
 class Prediction(AbstractData):
     dataset = models.ForeignKey(Dataset, related_name="prediction_set",null=True,on_delete=models.SET_NULL)

@@ -15,6 +15,7 @@ import UploadPage from "./pages/UploadPage";
 import "react-toastify/dist/ReactToastify.css";
 import './App.css';
 import ResultPage from "./pages/ResultPage";
+import InfoDataPage from "./pages/InputDataPage";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/inputdata/" element={<InfoDataPage/>}  />
           {/* <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route

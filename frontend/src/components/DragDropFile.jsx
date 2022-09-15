@@ -139,7 +139,7 @@ function DragDropFile() {
             startSwal.close();
             errorSwal.fire({
                 title: <strong>Prediction Error</strong>,
-                html: <i>`${error.status}`</i>,
+                html: <i>{error.message}, please try again</i>,
                 icon:'error',
             })
             console.log(error);
