@@ -95,10 +95,11 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'React Django 3D',
     'DESCRIPTION': 'React Django 3D application',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    "SCHEMA_PATH_PREFIX": r"/api/",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "COMPONENT_NO_READ_ONLY_REQUIRED": True,
+    "SERVE_INCLUDE_SCHEMA": False,
 }
-
 
 # Logging
 # https://docs.djangoproject.com/en/3.2/topics/logging/#examples

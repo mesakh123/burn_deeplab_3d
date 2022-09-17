@@ -34,3 +34,11 @@ task_default_queue = "others"
 task_reject_on_worker_lost = True
 task_acks_late = True
 beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}

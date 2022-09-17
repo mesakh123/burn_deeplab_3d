@@ -40,18 +40,18 @@ const navigate = useNavigate();
         })
         e.preventDefault();
         let formField = new FormData();
-        formField.append("medicianid",medicianid);
-        formField.append("patientid",patientid);
+        formField.append("medician_id",medicianid);
+        formField.append("patient_id",patientid);
         formField.append("age",age);
-        formField.append("gender",gender);
+        formField.append("sex",gender);
         formField.append("height",height);
         formField.append("weight",weight);
-        formField.append("typeoption",typeoption);
+        formField.append("burn_type",typeoption);
         formField.append("comments",comments);
 
         await axios({
             method: "POST",
-            url: "http://localhost:8080/api/infodata/",
+            url: "http://localhost:8000/api/datainfo/",
             data:formField
         }).then((response)=>{
             console.log(response.data);
