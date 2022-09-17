@@ -35,10 +35,12 @@ task_reject_on_worker_lost = True
 task_acks_late = True
 beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
 
+local_test = False
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if local_test:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}

@@ -22,6 +22,11 @@ function ResultVisualize() {
         (location.state.datasetId ? location.state.datasetId : null)
         : null
     );
+    const [ curDataInfoId, setCurDataInfoID] = useState(
+        location.state ?
+        (location.state.dataInfoId ? location.state.dataInfoId : null)
+        : null
+    )
     const base_url = "";
     const errorSwal = withReactContent(Swal);
 
@@ -48,7 +53,7 @@ function ResultVisualize() {
                     console.log("ResultVisualize response : " + JSON.stringify(response));
 
                     setGtData(response.data.gt_files);
-                    setPredictData(response.data.pt_files); //
+                    setPredictData(response.data.pt_files);
                     setDataset(response.data.dataset_uuid);
                     setLoading(false);
                 })

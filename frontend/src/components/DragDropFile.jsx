@@ -25,61 +25,63 @@ function DragDropFile() {
     const [datasetId, setDatasetId] = useState(-1);
     const [loopMutex, setLoopMutex] = useState(false);
 
-    const curr_home = "/"
-    useEffect(() => {
-        if(datasetId!==-1 && datasetStatus!=="processing" && datasetStatus!=null){
-            console.log("datasetStatus datasetStatus "+datasetStatus)
-            if(datasetStatus==="completed"){
-                startSwal.close();
-                navigate("/upload/result",{state:{datasetId: datasetId,datasetStatus:datasetStatus}});
-            }
-            else{
-                console.log("errorswall")
-                startSwal.close();
-                errorSwal.fire({
-                    title: <strong>Prediction Error</strong>,
-                    html: <i>Error while predicting, please try again</i>,
-                    icon:'error',
-                })
-            }
-        }
+    let curr_home = "/";
+    // useEffect(() => {
+    //     if(datasetId!==-1 && datasetStatus!=="processing" && datasetStatus!=null){
+    //         console.log("datasetStatus datasetStatus "+datasetStatus)
+    //         if(datasetStatus==="completed"){
+    //             startSwal.close();
+    //             navigate("/upload/inputdata",{state:{datasetId: datasetId}});
+    //         }
+    //         else{
+    //             console.log("errorswall")
+    //             startSwal.close();
+    //             errorSwal.fire({
+    //                 title: <strong>Prediction Error</strong>,
+    //                 html: <i>Error while predicting, please try again</i>,
+    //                 icon:'error',
+    //             })
+    //         }
+    //     }
 
-    },[datasetStatus])
+    // },[datasetStatus])
 
     useEffect(() => {
         if(datasetId!==-1){
-            axios.get(curr_home+"api/upload/"+datasetId+"/").
-            then(function (response) {
-                console.log("getdataset response: " + JSON.stringify(response));
-                setDatasetStatus(response.data.upload_status);
-                setLoopMutex(!loopMutex);
-            })
-            .catch((error) => console.log(error));
+            navigate("/upload/inputdata",{state:{datasetId: datasetId}});
+            // axios.get(curr_home+"api/upload/"+datasetId+"/").
+            // then(function (response) {
+
+            //     console.log("getdataset response: " + JSON.stringify(response));
+            //     setDatasetStatus(response.data.upload_status);
+            //     setLoopMutex(!loopMutex);
+            // })
+            // .catch((error) => console.log(error));
         }
 
     },[datasetId]);
 
 
-    useEffect(() => {
-        console.log("loopMutex "+loopMutex);
-        console.log("datasetId "+datasetId);
-        console.log("datasetStatus "+datasetStatus);
-        if(datasetId!=-1 && (datasetStatus==null || datasetStatus==="processing")){
-            axios.get(curr_home+"api/upload/"+datasetId+"/").
-            then(function (response) {
-                console.log("getdataset response datasetStatus: " + JSON.stringify(response));
-                if(response.data.upload_status!=="processing"){
-                    console.log("response.data.upload_status "+response.data.upload_status)
-                    setDatasetStatus(response.data.upload_status);
-                }
-                else{
-                    setLoopMutex(!loopMutex);
-                }
-            })
-            .catch((error) => console.log(error));
-        }
+    // useEffect(() => {
+    //     console.log("loopMutex "+loopMutex);
+    //     console.log("datasetId "+datasetId);
+    //     console.log("datasetStatus "+datasetStatus);
+    //     if(datasetId!=-1 && (datasetStatus==null || datasetStatus==="processing")){
+    //         axios.get(curr_home+"api/upload/"+datasetId+"/").
+    //         then(function (response) {
+    //             console.log("getdataset response datasetStatus: " + JSON.stringify(response));
+    //             if(response.data.upload_status!=="processing"){
+    //                 console.log("response.data.upload_status "+response.data.upload_status)
+    //                 setDatasetStatus(response.data.upload_status);
+    //             }
+    //             else{
+    //                 setLoopMutex(!loopMutex);
+    //             }
+    //         })
+    //         .catch((error) => console.log(error));
+    //     }
 
-    },[loopMutex])
+    // },[loopMutex])
 
     const fileParams = ({ meta }) => {
         return { url: 'https://httpbin.org/post' }
@@ -89,7 +91,7 @@ function DragDropFile() {
         console.log(status, meta, file)
     }
 
-    const onSubmit = (files, allFiles) => {
+    const onSubmit = async (files, allFiles) => {
 
         let formData = new FormData();
 
@@ -110,15 +112,15 @@ function DragDropFile() {
 
         allFiles.forEach(f => f.remove());
 
-        startSwal.fire({
-            title: <strong>Prediction started</strong>,
-            html: <i>prediction is running, please wait</i>,
-            showCancelButton: false,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-        })
+        // startSwal.fire({
+        //     title: <strong>Prediction started</strong>,
+        //     html: <i>prediction is running, please wait</i>,
+        //     showCancelButton: false,
+        //     showConfirmButton: false,
+        //     allowOutsideClick: false,
+        // })
 
-        axios.post(
+        await axios.post(
             // "https://httpbin.org/post",
             curr_home+'api/upload/',
             formData,
@@ -144,8 +146,6 @@ function DragDropFile() {
             })
             console.log(error);
         });
-
-
 
     }
 
