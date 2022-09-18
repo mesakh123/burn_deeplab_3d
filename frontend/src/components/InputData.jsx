@@ -11,7 +11,8 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 function InputData() {
-  let curr_home = "http://localhost:8080/";
+  // let curr_home = "http://localhost:8080/";
+  let curr_home = "/";
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -29,10 +30,11 @@ function InputData() {
       axios
         .get(curr_home + "api/upload/" + curDatasetId + "/")
         .then(function (response) {
-            console.log(
-                "useEffect[] response.data.upload_status " + response.data.upload_status
-            );
-            setDatasetStatus(response.data.upload_status);
+          console.log(
+            "useEffect[] response.data.upload_status " +
+              response.data.upload_status
+          );
+          setDatasetStatus(response.data.upload_status);
         })
         .catch((error) => {
           console.log("ERROR");
@@ -50,53 +52,48 @@ function InputData() {
     console.log("datasetId " + curDatasetId);
     console.log("datasetStatus " + datasetStatus);
 
-    if(curDatasetId != -1 && dataInfoId!=-1) {
-
-        axios
+    if (curDatasetId != -1 && dataInfoId != -1) {
+      axios
         .get(curr_home + "api/upload/" + curDatasetId + "/")
         .then(function (response) {
-        if (response.data.upload_status === "completed") {
+          if (response.data.upload_status === "completed") {
             console.log("done");
             console.log(
-            "response.data.upload_status " + response.data.upload_status
+              "response.data.upload_status " + response.data.upload_status
             );
             setDatasetStatus(response.data.upload_status);
-        } else {
+          } else {
             console.log("Here");
             console.log(
-            "response.data.upload_status " + response.data.upload_status
+              "response.data.upload_status " + response.data.upload_status
             );
             setLoopMutex(!loopMutex);
-        }
+          }
         })
         .catch((error) => {
-            console.log("ERROR");
-            console.log(error);
+          console.log("ERROR");
+          console.log(error);
         });
-
     }
-
-
   }, [loopMutex]);
 
   useEffect(() => {
-    if (dataInfoId!=-1){
-        if (datasetStatus === "completed") {
-            startSwal.close();
-            console.log("curDatasetId " + curDatasetId);
-            console.log("dataInfoId " + dataInfoId);
-            navigate("/upload/result/", {
-              state: { datasetId: curDatasetId, dataInfoId: dataInfoId },
-            });
-          }
-        else {
-            startSwal.close();
-            errorSwal.fire({
-              title: <strong>Prediction Error</strong>,
-              html: <i>Error while predicting, please try again</i>,
-              icon: "error",
-            });
-        }
+    if (dataInfoId != -1) {
+      if (datasetStatus === "completed") {
+        startSwal.close();
+        console.log("curDatasetId " + curDatasetId);
+        console.log("dataInfoId " + dataInfoId);
+        navigate("/upload/result/", {
+          state: { datasetId: curDatasetId, dataInfoId: dataInfoId },
+        });
+      } else {
+        startSwal.close();
+        errorSwal.fire({
+          title: <strong>Prediction Error</strong>,
+          html: <i>Error while predicting, please try again</i>,
+          icon: "error",
+        });
+      }
     }
   }, [datasetStatus]);
 
@@ -141,7 +138,7 @@ function InputData() {
       allowOutsideClick: false,
     });
     await axios
-      .post("http://localhost:8080/api/datainfo/", formField, {
+      .post(curr_home + "api/datainfo/", formField, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response) => {
