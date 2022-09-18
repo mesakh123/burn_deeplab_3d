@@ -36,3 +36,5 @@ class DataInfoViewSet(ActionBasedSerializerClassMixin,ModelViewSet):
     response_serializer_class = DataInfoResponseSerializer
     retrieve_serializer_class=DataInfoResponseSerializer
     list_serializer_class = DataInfoResponseSerializer
+    def perform_create(self, serializer):
+        instance = serializer.save()

@@ -25,7 +25,7 @@ function DragDropFile() {
     const [datasetId, setDatasetId] = useState(-1);
     const [loopMutex, setLoopMutex] = useState(false);
 
-    let curr_home = "/";
+    let curr_home = "http://localhost:8080/";
     // useEffect(() => {
     //     if(datasetId!==-1 && datasetStatus!=="processing" && datasetStatus!=null){
     //         console.log("datasetStatus datasetStatus "+datasetStatus)
@@ -48,7 +48,7 @@ function DragDropFile() {
 
     useEffect(() => {
         if(datasetId!==-1){
-            navigate("/upload/inputdata",{state:{datasetId: datasetId}});
+            navigate("/upload/inputdata/",{state:{datasetId: datasetId}});
             // axios.get(curr_home+"api/upload/"+datasetId+"/").
             // then(function (response) {
 

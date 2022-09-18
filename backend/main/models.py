@@ -23,7 +23,7 @@ class AbstractPatient(models.Model):
         MALE = 'm', 'Male'
         UNSURE = 'u', 'Unsure'
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200,default="",blank=True,null=True)
     age = models.IntegerField(default=0)
     sex = models.CharField(max_length=1,choices=SexChoice.choices)
     height = models.FloatField(default=0,null=True,blank=True)

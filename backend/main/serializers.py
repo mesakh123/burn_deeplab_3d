@@ -99,13 +99,12 @@ class DataInfoSerializer(serializers.ModelSerializer):
         fields: FIELDS = [
             "id","burn_type","comments",
             "patient_id","medician_id",
-            "name","age","height","weight",
+            "age","height","weight",
             "sex"
         ]
 
     medician_id = serializers.CharField(max_length=50,required=True,write_only=True)
     patient_id = serializers.CharField(max_length=50,required=True,write_only=True)
-    name = serializers.CharField(max_length=50,required=True,write_only=True)
     sex = serializers.CharField(max_length=50,required=True,write_only=True)
     age = serializers.IntegerField(required=True,write_only=True)
     height = serializers.FloatField(required=True,write_only=True)
@@ -119,7 +118,6 @@ class DataInfoSerializer(serializers.ModelSerializer):
         sex = validated_data.pop("sex","")
         height = validated_data.pop("height","")
         weight = validated_data.pop("weight","")
-        name = validated_data.pop("name","")
         with transaction.atomic():
             data_info = super().create(validated_data)
             try:
@@ -127,7 +125,6 @@ class DataInfoSerializer(serializers.ModelSerializer):
             except Exception as _:
                 patient = Patient.objects.create(
                     patient_id=patient_id,
-                    name = name,
                     age = age,
                     sex = sex,
                     height = height,

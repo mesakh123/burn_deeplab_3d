@@ -27,7 +27,8 @@ function ResultVisualize() {
         (location.state.dataInfoId ? location.state.dataInfoId : null)
         : null
     )
-    const base_url = "";
+
+    const base_url = "http://localhost:8080/";
     const errorSwal = withReactContent(Swal);
 
     const [render_files_type,setRenderFilesType] = useState([]);
@@ -36,19 +37,26 @@ function ResultVisualize() {
     const FILE_ALLOWED_TYPES = ["texture","obj","mtl"];
 
 
-    if(location.state == null || location.state==undefined) {
-        navigate("/upload/");
-    }
+    // if(location.state == null || location.state==undefined) {
+    //     navigate("/upload/");
+    // }
 
+    // useEffect(() => {
+    //     if (location.state == null || location.state==undefined) {
+    //       navigate("/upload/");
+    //     }
+    //   }, []);
 
     useEffect(() => {
-        if(curDatasetId == null || curDatasetId==undefined) {
+        if(curDatasetId==-1 || curDatasetId == null || curDatasetId==undefined
+            || curDataInfoId ==-1 || curDataInfoId == null || curDataInfoId==undefined) {
             console.log("datasetId: "+curDatasetId)
             navigate("/upload/");
         }
         else{
             if(gt_data.length==0 || isError == false){
-                axios.get(base_url+"/api/upload/"+curDatasetId+"/").
+                console.log("curDatasetId "+curDatasetId)
+                axios.get(base_url+"api/upload/"+curDatasetId+"/").
                 then(function (response) {
                     console.log("ResultVisualize response : " + JSON.stringify(response));
 
@@ -63,14 +71,16 @@ function ResultVisualize() {
                         setError(true);
                         errorSwal.fire({
                             title: <strong>Prediction Error</strong>,
-                            html: <i>`$error`</i>,
+                            html: <i>{error.message}, please try again</i>,
                             icon:'error',
                         })
                     }
 
                 );
             }
+
         }
+
 
     },[loopMutex]);
 
@@ -119,13 +129,17 @@ function ResultVisualize() {
     }
     let data_array = {};
 
+
+
+
     Object.keys(render_files).map(function(key){
         let new_data =  render_files[key];
         if(!(key  in data_array)) {
             data_array[key]= new_data;
         }
     })
-    navigate(location.pathname, { replace: true });
+
+
 
     return (
     <div className='row no-gutters  no-gutters'>

@@ -11,7 +11,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 function InputData() {
-let curr_home = "/"
+  let curr_home = "http://localhost:8080/";
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -23,64 +23,82 @@ let curr_home = "/"
       : null
   );
   useEffect(() => {
-    if (
-      location.state == null ||
-      location.state == undefined ||
-      curDatasetId == null ||
-      curDatasetId == undefined
-    ) {
+    if (curDatasetId == null || curDatasetId == undefined) {
       navigate("/upload/");
+    } else {
+      axios
+        .get(curr_home + "api/upload/" + curDatasetId + "/")
+        .then(function (response) {
+            console.log(
+                "useEffect[] response.data.upload_status " + response.data.upload_status
+            );
+            setDatasetStatus(response.data.upload_status);
+        })
+        .catch((error) => {
+          console.log("ERROR");
+          console.log(error);
+        });
     }
   }, []);
 
   const [loopMutex, setLoopMutex] = useState(false);
   const [datasetStatus, setDatasetStatus] = useState(null);
-  const [dataInfoId,setDataInfoId] = useState(-1);
+  const [dataInfoId, setDataInfoId] = useState(-1);
 
-    useEffect( async () => {
-        console.log("loopMutex "+loopMutex);
-        console.log("datasetId "+curDatasetId);
-        console.log("datasetStatus "+datasetStatus);
-        if(curDatasetId!=-1 && (datasetStatus==null || datasetStatus==="processing")){
-            await axios.get(curr_home+"api/upload/"+curDatasetId+"/").
-            then(function (response) {
-                if(response.data.upload_status!=="processing"){
-                    console.log("response.data.upload_status "+response.data.upload_status)
-                    setDatasetStatus(response.data.upload_status);
-                }
-                else{
-                    setLoopMutex(!loopMutex);
-                }
-            })
-            .catch((error) => console.log(error));
+  useEffect(() => {
+    console.log("loopMutex " + loopMutex);
+    console.log("datasetId " + curDatasetId);
+    console.log("datasetStatus " + datasetStatus);
+
+    if(curDatasetId != -1 && dataInfoId!=-1) {
+
+        axios
+        .get(curr_home + "api/upload/" + curDatasetId + "/")
+        .then(function (response) {
+        if (response.data.upload_status === "completed") {
+            console.log("done");
+            console.log(
+            "response.data.upload_status " + response.data.upload_status
+            );
+            setDatasetStatus(response.data.upload_status);
+        } else {
+            console.log("Here");
+            console.log(
+            "response.data.upload_status " + response.data.upload_status
+            );
+            setLoopMutex(!loopMutex);
         }
+        })
+        .catch((error) => {
+            console.log("ERROR");
+            console.log(error);
+        });
 
-    },[loopMutex])
+    }
 
-    useEffect(() => {
-        if(curDatasetId!==-1 && datasetStatus!=="processing" && datasetStatus!=null){
-            console.log("datasetStatus datasetStatus "+datasetStatus)
-            if(datasetStatus==="completed"){
-                startSwal.close();
-                navigate("/result",{state:{datasetId: curDatasetId,dataInfoId:dataInfoId}});
-            }
-            else{
-                console.log("errorswall")
-                startSwal.close();
-                errorSwal.fire({
-                    title: <strong>Prediction Error</strong>,
-                    html: <i>Error while predicting, please try again</i>,
-                    icon:'error',
-                })
-            }
+
+  }, [loopMutex]);
+
+  useEffect(() => {
+    if (dataInfoId!=-1){
+        if (datasetStatus === "completed") {
+            startSwal.close();
+            console.log("curDatasetId " + curDatasetId);
+            console.log("dataInfoId " + dataInfoId);
+            navigate("/upload/result/", {
+              state: { datasetId: curDatasetId, dataInfoId: dataInfoId },
+            });
+          }
+        else {
+            startSwal.close();
+            errorSwal.fire({
+              title: <strong>Prediction Error</strong>,
+              html: <i>Error while predicting, please try again</i>,
+              icon: "error",
+            });
         }
-
-    },[datasetStatus])
-
-
-
-
-
+    }
+  }, [datasetStatus]);
 
   const [medicianid, setMedicianId] = useState("");
   const [patientid, setPatientId] = useState("");
@@ -89,13 +107,32 @@ let curr_home = "/"
   const [gender, setGender] = useState(0);
   const [height, setHeight] = useState(0);
   const [weight, setWeight] = useState(0);
-  const [typeoption, setTypeOption] = useState("");
+  const [typeoption, setTypeOption] = useState("s");
   const [comments, setComments] = useState("");
 
   const startSwal = withReactContent(Swal);
   const errorSwal = withReactContent(Swal);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    let formField = new FormData();
+    formField.append("burn_type", typeoption);
+    formField.append("comments", comments);
+    formField.append("patient_id", patientid);
+    formField.append("medician_id", medicianid);
+    formField.append("sex", gender);
+    formField.append("age", age);
+    formField.append("height", height);
+    formField.append("weight", weight);
+
+    console.log("medician_id " + medicianid);
+    console.log("patient_id " + patientid);
+    console.log("age " + age);
+    console.log("sex " + gender);
+    console.log("height " + height);
+    console.log("weight " + weight);
+    console.log("burn_type " + typeoption);
+    console.log("comments " + comments);
     startSwal.fire({
       title: <strong>Input Data</strong>,
       html: <i>sending data, please wait</i>,
@@ -103,29 +140,17 @@ let curr_home = "/"
       showConfirmButton: false,
       allowOutsideClick: false,
     });
-    e.preventDefault();
-    let formField = new FormData();
-    formField.append("medician_id", medicianid);
-    formField.append("patient_id", patientid);
-    formField.append("age", age);
-    formField.append("sex", gender);
-    formField.append("height", height);
-    formField.append("weight", weight);
-    formField.append("burn_type", typeoption);
-    formField.append("comments", comments);
-
-    await axios({
-      method: "POST",
-      url: "http://localhost:8000/api/datainfo/",
-      data: formField,
-    })
+    await axios
+      .post("http://localhost:8080/api/datainfo/", formField, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((response) => {
-        console.log(response.data);
+        console.log("post response data :" + JSON.stringify(response.data));
         setDataInfoId(response.data.id);
         setLoopMutex(!loopMutex);
-
       })
       .catch((error) => {
+        console.log(error);
         startSwal.close();
         errorSwal.fire({
           title: <strong>Input data error</strong>,
@@ -238,15 +263,16 @@ let curr_home = "/"
               required
               className="col form-control"
               id="typeoption"
+              default={typeoption}
               onChange={(e) => setTypeOption(e.target.value)}
             >
-              <option value="scald">Scald</option>
-              <option value="grease">Grease</option>
-              <option value="contact">Contact</option>
-              <option value="flame">Flame</option>
-              <option value="chemical">Chemical</option>
-              <option value="electric">Electric </option>
-              <option value="other">Other</option>
+              <option value="s">Scald</option>
+              <option value="g">Grease</option>
+              <option value="c">Contact</option>
+              <option value="f">Flame</option>
+              <option value="c">Chemical</option>
+              <option value="e">Electric </option>
+              <option value="o">Other</option>
             </Form.Select>
           </Form.Group>
 
